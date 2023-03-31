@@ -1,0 +1,27 @@
+# docker-compose.yml
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  worker:
+    build: .
+    container_name: celery-worker
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/app
+
+  main:
+    build: .
+    container_name: main-script
+    depends_on:
+      - worker
+    volumes:
+      - .:/app
+    command: ["python", "job_generator.py"]
